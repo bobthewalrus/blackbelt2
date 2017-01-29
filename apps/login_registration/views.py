@@ -1,7 +1,8 @@
 from django.shortcuts import render, HttpResponse, redirect
-from models import User
+from models import User, Appointment
 from django.contrib import messages
 from django.urls import reverse
+from datetime import *
 
 # Create your views here.
 
@@ -40,6 +41,7 @@ def login(request, user):
     'firstname' : user.firstname,
     'lastname' : user.lastname,
     'email' : user.email,
+    'dob' : user.dob,
     }
     return redirect('success')
 
@@ -55,7 +57,43 @@ def registervalidate(request):
 def success(request):
     if not 'user' in request.session:
         return redirect('/')
-    return render(request, 'login_registration/success.html')
+    t = datetime.now()
+    time = ("%s/%s/%s" % (t.month, t.day, t.year))+ (" %s:%s:%s" % (t.hour, t.minute, t.second))
+    print t.date
+    today= Appointment.objects.filter(date=date.today(), user=request.session['user']['id']).order_by('time')
+    future= Appointment.objects.filter(date__range=[date.today(),"9999-12-31"]).exclude(date=date.today()).filter(user=request.session['user']['id'])
+    context = {
+    "todaylist":today,
+    "apptlist":future,
+    "timekey":time
+    }
+    return render(request, 'login_registration/success.html', context)
+def addappt(request):
+    if request.method =='POST':
+        result = Appointment.objects.apptvalidation(request.POST, request.session['user']['id'])
+        print result
+        if not result[0]:
+            print_messages(request, result[1])
+            return redirect(reverse('success'))
+    return redirect('/success')
+def editappt(request,id):
+    if request.method == 'POST':
+        edit_appt=Appointment.objects.filter(id=id)
+    context = {
+    "todaylist":edit_appt
+    }
+
+
+    return render(request, 'login_registration/editappt.html',context)
+def submitedit(request,id):
+    if request.method == 'POST':
+        toedit = Appointment.objects.filter(id=id).update(tasks=request.POST['appttasks'],date=request.POST['apptdate'], time=request.POST['appttime'])
+    return redirect('/success')
+def deleteappt(request,id):
+    if request.method == "POST":
+        delete = Appointment.objects.filter(id=id).delete()
+    return redirect('/success')
+
 
 def logout(request):
     request.session.clear()

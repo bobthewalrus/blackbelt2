@@ -5,8 +5,46 @@
     <title>Success</title>
   </head>
   <body>
+      {% if messages %}
+      <ul class='messages2'>
+          {% for message in messages %}
+          <li{% if message.tags %} class='{{ message.tags}}'{% endif %}>{{ message }}</li>
+          {% endfor %}
+      </ul>
+      {% endif %}
     <h1>Success!</h1>
     <p> Welcome {{request.session.user.firstname}}! You're logged in!</p>
+    <p> The current time is {{timekey}}</p>
+    <p>Today's appointments: </p>
+    <h3>Tasks=====Time======Status========Action</h3>
+    {% for x in todaylist %}
+        <p>{{x.tasks}} === {{x.date}} === {{x.time}}</p>
+        <form action='/editappt/{{x.id}}' method='POST'>
+            {% csrf_token %}
+            <input type='submit' value='Edit' name="{{x.id}}">
+        </form>
+        <form action='/deleteappt/{{x.id}}' method="POST">
+            {% csrf_token %}
+
+            <input type='submit' value='Delete' name="{{x.id}}">
+        </form>
+    {% endfor %}
+
+    <p>Your other appointments: </p>
+    <h3>Tasks=======Date======Time</h3>
+    {% for x in apptlist %}
+        <p>{{x.tasks}} === {{x.date}} === {{x.time}}</p>
+    {% endfor %}
+
+    <h3>Add Appointment</h3>
+    <form action="/addappt" method='POST'>
+        {% csrf_token %}
+        <p>Date: <input type="date" name="apptdate"></p>
+        <p>Time: <input type='time' name='appttime' ></p>
+        <p>Tasks: <input type='text' name='appttasks'></p>
+        <input type='submit' value='Submit'>
+    </form>
+
     <a href='{% url 'logout' %}'>Logout</a>
 
 

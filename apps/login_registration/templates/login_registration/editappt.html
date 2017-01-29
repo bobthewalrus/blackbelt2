@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Success</title>
+  </head>
+  <body>
+      {% if messages %}
+      <ul class='messages2'>
+          {% for message in messages %}
+          <li{% if message.tags %} class='{{ message.tags}}'{% endif %}>{{ message }}</li>
+          {% endfor %}
+      </ul>
+      {% endif %}
+
+
+    <p>Selected appointment: </p>
+    <h3>Tasks=====Time======Status========Action</h3>
+    {% for x in todaylist %}
+        <p>{{x.tasks}} === {{x.date}} === {{x.time}}</p>
+
+
+    <h3>Edit Appointment</h3>
+    <form action="/submitedit/{{x.id}}" method='POST'>
+        {% csrf_token %}
+        <p>Date: <input type="date" name="apptdate" min="2000-01-02"></p>
+        <p>Time: <input type='time' name='appttime' ></p>
+        <p>Tasks: <input type='text' name='appttasks'></p>
+        <input type='submit' value='Submit'>
+        <input type='hidden' name='apptid' value='{{x.id}}'>
+    </form>
+    <a href='{% url 'success'%}'>Return</a>
+    <a href='{% url 'logout' %}'>Logout</a>
+
+    {% endfor %}
+
+  </body>
+</html>
