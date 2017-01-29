@@ -19,22 +19,29 @@ def loginvalidate(request):
         print 'here'
         print request.POST['email']
         result = User.objects.loginvalidation(request.POST)
-        print result
+        print "Login validation complete"
+        # print result
 
         if result[0] == False:
             print_messages(request, result[1])
             return redirect(reverse('index'))
+        # print request
+        print result[1]
+        print "Passing to the login function"
         return login(request, result[1])
-    return redirect('/')
+    else:
+        print "Method's not even post for loginvalidate"
+        return redirect('/')
 
 def login(request, user):
     print "Here at Login"
     request.session['user'] = {
     'id': user.id,
-    'first_name' : user.firstname,
-    'last_name' : user.lastname,
+    'firstname' : user.firstname,
+    'lastname' : user.lastname,
     'email' : user.email,
     }
+    return redirect('success')
 
 def registervalidate(request):
     result= User.objects.registervalidation(request.POST)
@@ -50,9 +57,6 @@ def success(request):
         return redirect('/')
     return render(request, 'login_registration/success.html')
 
-
-
-    return redirect('/success')
 def logout(request):
     request.session.clear()
     # request.session.pop('user')
